@@ -1,0 +1,136 @@
+<%- include("src/header.ejs") %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../public/index.css">
+    <style>
+        /* Responsive Grid Layout */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 10px;
+}
+
+/* Card Styles */
+.card {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+    background: #fff;
+}
+
+.card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Card Background */
+.card__background {
+    height: 150px;
+    background-size: cover;
+    background-position: center;
+}
+
+/* Card Content */
+.card__content {
+    padding: 15px;
+    text-align: center;
+}
+
+.card__heading {
+    font-size: 1.5rem;
+    margin: 10px 0;
+    color: #00796b;
+}
+
+.Description {
+    font-size: 1rem;
+    color: #555;
+    margin-top: 10px;
+}
+
+/* Adjustments for Smaller Screens */
+@media (max-width: 768px) {
+    .card__heading {
+        font-size: 1.2rem;
+    }
+
+    .Description {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .card__content {
+        padding: 10px;
+    }
+
+    .Description {
+        font-size: 0.8rem;
+    }
+
+    .card__heading {
+        font-size: 1rem;
+    }
+}
+
+    </style>
+</head>
+<body class="Home" href="/Home">
+    <div class="blog">
+        <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet">
+    
+      
+       <% if(posts.length > 0) { %>
+        <h1>Latest Posts</h1>
+        
+<section class="hero-section">
+  <div class="card-grid" >
+    
+    <% posts.forEach(post => { %>
+    <div class="card" >
+     
+      <div class="card__background" style="background-image: url('<%= post.image_url %>');">
+
+      </div>       
+      <div class="card__content">
+        <h3 class="card__heading"><%= post.title %></h3>
+      
+       <div class="Description">
+        <p><%= post.content %></p>
+       </div>
+
+       <div class="Creation_time">
+        <p>Created at <%= post.updated_at.getDate()%>  <%= post.updated_at.getFullYear() %></p>
+       </div>
+        
+       <div class="page_inner" >
+        <a href="/more_content/<%= post.id %>">read more....</a>
+       </div>
+     </div>
+    </div>
+  
+    <% }); %>
+    <% } else { %>
+      <h1>No Posts Found</h1>
+       <% } %>
+  <div>
+</section>
+
+    </div>
+   
+        
+</body>
+</html>
+<%- include("src/footer.ejs") %>
