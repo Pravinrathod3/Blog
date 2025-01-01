@@ -4,7 +4,6 @@
 # Ignore specific directory
 /node_modules/
 
-/uploads/
 
 .env
 
