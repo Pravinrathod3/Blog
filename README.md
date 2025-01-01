@@ -56,17 +56,6 @@ A fully functional Blog Website that allows users to create, view, edit, and del
    ```
    The application will be available at `http://localhost:3000`.
 
-## Screenshots
-
-### 1. **Home Page**
-![Home Page](#)
-
-### 2. **Add Blog Page**
-![Add Blog Page](#)
-
-### 3. **View Blog Page**
-![View Blog Page](#)
-
 ## Future Enhancements
 - Add a comments section for blog posts.
 - Implement categories and tags for blogs.
