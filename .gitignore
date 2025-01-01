@@ -4,5 +4,10 @@
 # Ignore specific directory
 /node_modules/
 
+/uploads/
+
+.env
+
 # Ignore all files in a folder
 /dist/
+

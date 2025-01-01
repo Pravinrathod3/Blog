@@ -7,6 +7,9 @@ import session from 'express-session';
 import bcrypt from 'bcrypt';
 import passport from "passport";
 import multer from "multer";
+import env from "dotenv";
+
+env.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -19,17 +22,29 @@ const port = 3000;
 app.use('/uploads', express.static('uploads'));
 
 const db = new pg.Client({
-    user: "postgres",
-    host: "localhost",
-    database: "Blog_Website",
-    password: "pravin4532",
-    port: 5432
+    user: process.env.DB_USER,
+    host: process.env.DB_HOST,
+    database: process.env.DB_DATABASE,
+    password: process.env.DB_PASSWORD,
+    port: process.env.DB_PORT
 });
   
 db.connect();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
+app.set("view engine", "ejs");
+
+
+app.use(session({
+    secret: 'your-secret-key', 
+    resave: false,
+    saveUninitialized: false,
+}));
+
+// Passport setup
+app.use(passport.initialize());
+app.use(passport.session());
 
 const storage = multer.diskStorage({
     destination: function(req, file, cb) {
@@ -54,15 +69,7 @@ const upload = multer({ storage: storage,
     }
  });
 
-app.use(session({
-    secret: 'your-secret-key', 
-    resave: false,
-    saveUninitialized: true,
-}));
 
-// Passport setup
-app.use(passport.initialize());
-app.use(passport.session());
 
 // Route to render the login/signup page
 app.get("/", (req, res) => {
@@ -71,18 +78,19 @@ app.get("/", (req, res) => {
 
 // Signup route with password hashing
 app.post("/signup", async(req, res) => {
-    const name = req.body.txt;
+    const name = req.body.text;
     const email = req.body.email;
     const password = req.body.pswd;
 
     try {
         // Hash password before saving to the database
         const hashedPassword = await bcrypt.hash(password, 10);
+        console.log(hashedPassword);
 
         const re = await db.query("INSERT INTO users(username, email, password) VALUES($1, $2, $3)", 
             [name, email, hashedPassword]
         );
-        res.redirect("/Home");
+        res.redirect("/login");
         console.log(re);
     } catch (error) {
         console.log(error);
@@ -122,7 +130,7 @@ app.get("/Home", async(req, res) => {
     try {
         const results = await db.query("SELECT * FROM blogs ORDER BY id DESC");
         res.render("index.ejs", { posts: results.rows || [] });
-        console.log(results.rows);
+        
     } catch (error) {
         console.log(error);
         res.render("index.ejs", { posts: [] });
@@ -141,6 +149,33 @@ const isAuthenticated = (req, res, next) => {
         res.redirect("/"); // Redirect to login page
     }
 };
+
+const isAuthor = async (req, res, next) => {
+    const blogId = req.body.id || req.params.id;
+    const userId = req.session.userId;
+
+    try {
+        const result = await db.query("SELECT user_id FROM blogs WHERE id = $1", [blogId]);
+        if (result.rows.length > 0 && result.rows[0].user_id === userId) {
+            next();
+        } else {
+            res.status(403).send("Unauthorized to edit this blog");
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(500).send("Error checking authorization");
+    }
+};
+
+//logout route
+app.get("/logout", (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            return console.log(err);
+        }
+        res.redirect('/');
+    });
+});
 
 app.post("/submit", isAuthenticated , upload.single('image'), async(req, res) => {
     const header = req.body.head;
@@ -162,21 +197,28 @@ app.post("/submit", isAuthenticated , upload.single('image'), async(req, res) =>
 });
 
 // Route to view more content (use query params or URL params)
-app.get("/more_content/:id", async(req, res) => {
+app.get("/more_content/:id", isAuthenticated ,async(req, res) => {
     
         const id = req.params.id;
-        const userId = req.session.userId;
+        let user1 = false;
         try {
             const result = await db.query("SELECT * FROM blogs WHERE id = $1", [id]);
             if (result.rows.length > 0) {
                 const blog = result.rows[0];
+                const user_id = blog.user_id;
+                
+                if(req.session.userId == user_id){
+                    user1 = true;
+                }
+                
                 res.render("content.ejs", {
                     post: blog,
-                    user : userId
+                    user : user1
                 });
             } else {
                 res.send("Post not found");
             }
+            console.log(user1);
         } catch (error) {
             console.log(error);
             res.send("Error fetching the blog");
@@ -185,12 +227,32 @@ app.get("/more_content/:id", async(req, res) => {
     
 });
 
-app.patch("/update", async(req, res) => {
-    const { id, title, content } = req.body;
+app.get("/update/:id", async(req, res) => {
+    const id = req.params.id;
+    try {
+        const result = await db.query("SELECT * FROM blogs WHERE id = $1", [id]);
+        if (result.rows.length > 0) {
+            res.render("edit.ejs", { post: result.rows[0] });
+        } else {
+            res.send("Post not found");
+        }
+    }catch (error) {    
+        console.log(error);
+        res.send("Error fetching the blog");
+    }
+});
+
+app.post("/edit/:id", isAuthenticated, upload.single('image_url'), async(req, res) => {
+    const id = req.params.id;
+    const header = req.body.title;
+    const data = req.body.content;
+    const userId = req.session.userId;
+    const imageUrl = req.file ? `/uploads/${req.file.filename}` : req.body.existing_image_url;
+    console.log(req.file);
 
     try {
-        await db.query("UPDATE blogs SET title = $1, content = $2 WHERE id = $3", 
-            [title, content, id]
+        const resu = await db.query("UPDATE blogs SET title = $1, content = $2, image_url = $3, user_id = $4 WHERE id = $5", 
+            [header, data, imageUrl, userId, id]
         );
         res.redirect("/Home");
     } catch (error) {
@@ -199,7 +261,7 @@ app.patch("/update", async(req, res) => {
     }
 });
 
-app.get("/delete/:id", async(req, res) => {
+app.get("/delete/:id", isAuthenticated, isAuthor, async(req, res) => {
     const id  = req.params.id;
 
     try {

@@ -4,15 +4,104 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Content</title>
+    <style>
+      /* General Reset */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+    
+}
+
+.content {
+    max-width: 1000px;
+    margin: 20px auto;
+    background: #fff;
+    padding: 20px;
+    
+}
+
+.image {
+
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.image img {
+    border-radius: 8px;
+    height: 500px;
+    width: 800px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.changes {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.changes a {
+    text-decoration: none;
+    color: #007bff;
+    padding: 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.changes a.update {
+    background-color: #e9f7ff;
+    border: 1px solid #b3e5fc;
+}
+
+.changes a.delete {
+    background-color: #ffe9e9;
+    border: 1px solid #f5c6cb;
+}
+
+.changes a:hover.update {
+    background-color: #b3e5fc;
+    color: #0056b3;
+}
+
+.changes a:hover.delete {
+    background-color: #f5c6cb;
+    color: #b30000;
+}
+
+h3 {
+    margin: 0 0 20px;
+    font-size: 1.8rem;
+    color: #222;
+    text-align: center;
+}
+
+.Description {
+    font-size: 1rem;
+    color: #555;
+    line-height: 1.8;
+    padding: 10px 20px;
+    background-color: #f8f8f8;
+    border-left: 4px solid #007bff;
+    border-radius: 5px;
+}
+
+.Description p {
+    margin: 0;
+}
+
+    </style>
 </head>
 <body>
     <div class="content">
       <div class="image">
         <img src="<%= post.image_url %>" alt="<%= post.title %>">
       </div>
-      <% if( post.id  ===  user ){ %>
+
+      <% if (user) { %>
       <div class="changes">
-        <a class="update" href="/update">
+        <a class="update" href="/update/<%= post.id %>">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
             <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325"/>
           </svg>

@@ -60,17 +60,39 @@ a{
 .header a{
   color:#eee
 }
-.add{
+.rear{
   display:flex;
-  width:40px;
-  height:30px;
-  border:2px solid #fff;
-  border-radius:3px;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: center;
   position:absolute;
   right:20px;
   top:20px;
+  text-decoration:none
+}
+
+.add{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:2px solid #fff;
+  border-radius:3px;
+  height: 40px;
+  width: 40px;
+  margin:0 10px;
+  font-size:2em;
+  color:#333;
+  text-decoration:none
+}
+
+.logout{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:2px solid #fff;
+  border-radius:3px;
+  margin:0 10px;
+  font-size:2em;
   text-decoration:none
 }
 
@@ -147,9 +169,15 @@ a{
         <div class="sides" >
           <a href="/Home" class="logo">BLOG</a>
         </div>
-        <div class="add">
-          <a href="/add"><h2>+</h2></a>
+        <div class="rear">
+          <div class="logout">
+            <a href="/logout" class="btn">Logout</a>
+          </div>
+          <div class="add">
+            <a href="/add"><h2>+</h2></a>
+          </div>
         </div>
+        
         <div class="info">
           <h1>Travel Inspiration</h1>
           
